@@ -1,0 +1,58 @@
+[
+  {
+    "producto": "NEBULIZADOR MESH miniMESH NM10",
+    "SKU": "NM10",
+    "repuestos": [
+      {
+        "codigo": "A-NM2",
+        "descripcion": "Accesorio- cabezal completo para nebulizadores mesh."
+      },
+      {
+        "codigo": "A-NM3",
+        "descripcion": "Accesorio - Mascarilla adulto para nebulizadores mesh."
+      },
+      {
+        "codigo": "A-NM4",
+        "descripcion": "Accesorio - Mascarilla infantil para nebulizadores mesh."
+      },
+      {
+        "codigo": "C-NM10",
+        "descripcion": "Componente - Porta pilas para nebulizador a MESH NM10."
+      },
+      {
+        "codigo": "C-NM9",
+        "descripcion": "Componente - Tapa de pilas para nebulizador a MESH NM10."
+      }
+    ]
+  },
+  {
+    "producto": "NEBULIZADOR A PISTÓN PIXEL N30",
+    "SKU": "N30",
+    "repuestos": [
+      {
+        "codigo": "A-N25-B",
+        "descripcion": "ACCESORIO - Ampolla nebulizadora para N25/N26/N27/N28/N30"
+      },
+      {
+        "codigo": "A-N26-MA",
+        "descripcion": "ACCESORIO - Mascara adulto para N25/N26/N27/N28/N30/N31"
+      },
+      {
+        "codigo": "A-N26-MI",
+        "descripcion": "ACCESORIO - Mascara infantil para N25/N26/N27/N28/N30/N31"
+      },
+      {
+        "codigo": "A-N26-L",
+        "descripcion": "ACCESORIO - Manguera para N25/N26/N27/N28/N30/N31"
+      },
+      {
+        "codigo": "A-N26-F",
+        "descripcion": "ACCESORIO - Filtro para N26/N27/N28/N30/N31 x 5 unidades"
+      },
+      {
+        "codigo": "A-N26-P",
+        "descripcion": "ACCESORIO - Pico bucal para N25/N26/N27/N28/N30/N31"
+      }
+    ]
+  }
+]

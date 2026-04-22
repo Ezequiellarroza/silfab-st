@@ -1,0 +1,44 @@
+@import "tailwindcss";
+:root {
+  /* Colores corporativos */
+  --brand: #006fb7;      /* Azul principal */
+  --brand-600: #004f85;  /* Azul más oscuro para hover */
+  --accent: #70b22c;     /* Verde secundario */
+
+  /* Base UI */
+  --ink: #0f172a;
+  --muted: #64748b;
+  --bg: #f8fafc;
+  --card: #ffffff;
+
+  /* Focus ring (usamos el brand) */
+  --ring: 0 111 183 / .35; /* rgb para focus: 0,111,183 */
+}
+
+/* Tipografía global */
+html, body, #root {
+  height: 100%;
+}
+html, body {
+  font-family: "Barlow", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--ink);
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+
