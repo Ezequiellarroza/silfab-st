@@ -85,6 +85,11 @@ export const ProductAPI = {
   async getPartsByProductId(productId) {
     if (!productId) throw new Error('Product ID es requerido');
     return await apiRequest(`/get_parts.php?product_id=${productId}`);
+  },
+
+  async searchProducts(q) {
+    if (!q || q.length < 3) return { success: true, products: [] };
+    return await apiRequest(`/search_products.php?q=${encodeURIComponent(q)}`);
   }
 };
 
@@ -94,97 +99,53 @@ export const RequestAPI = {
   // MODIFICADO: Crear nueva solicitud CON SOPORTE PARA ARCHIVOS
   // ============================================
   async createRequest(requestData, files = null) {
-    const user = getCurrentUser();
     const token = getToken();
-    
+
     if (!token) {
       throw new Error('No hay token de autenticación');
     }
 
-    // Si hay archivos, usar FormData, sino usar JSON
-    let body;
-    let headers = {
-      'Authorization': `Bearer ${token}`,
-    };
+    console.log('📤 Enviando con FormData');
 
-    if (files && (files.factura || files.garantia || files.imagenes)) {
-      // ============================================
-      // USAR FORMDATA PARA ENVIAR ARCHIVOS
-      // ============================================
-      console.log('📤 Enviando con FormData (con archivos)');
-      
-      const formData = new FormData();
-      
-      // Agregar campos normales
-      formData.append('user_name', requestData.user_name);
-      formData.append('user_email', requestData.user_email);
-      formData.append('product_sku', requestData.product_sku);
-      formData.append('product_name', requestData.product_name);
-      formData.append('serial_number', requestData.serial_number);
-      formData.append('purchase_date', requestData.purchase_date || '');
-      formData.append('warranty_number', requestData.warranty_number || 'N/A');
-      formData.append('fault_description', requestData.fault_description);
-      formData.append('request_type', requestData.request_type);
-      
-      // Agregar selected_parts como JSON string
-      formData.append('selected_parts', JSON.stringify(requestData.selected_parts || []));
-      
-      // Agregar archivos si existen
-      if (files.factura) {
-        formData.append('factura', files.factura);
-      }
-      if (files.garantia) {
-        formData.append('garantia', files.garantia);
-      }
-      if (files.imagenes) {
-        formData.append('imagenes', files.imagenes);
-      }
-      
-      body = formData;
-      
-      // NO incluir Content-Type para FormData (se configura automáticamente con boundary)
-      delete headers['Content-Type'];
-      
-    } else {
-      // ============================================
-      // USAR JSON SI NO HAY ARCHIVOS (compatibilidad)
-      // ============================================
-      console.log('📤 Enviando con JSON (sin archivos)');
-      
-      const finalData = {
-        ...requestData,
-        user_id: user?.id || 2
-      };
-      
-      body = JSON.stringify(finalData);
-      headers['Content-Type'] = 'application/json';
-    }
+    const formData = new FormData();
 
-    // Hacer el request
-    const separator = '/save_request.php'.includes('?') ? '&' : '?';
-    const urlWithToken = `/save_request.php${separator}token=${encodeURIComponent(token)}`;
+    formData.append('user_name', requestData.user_name);
+    formData.append('user_email', requestData.user_email);
+    formData.append('product_sku', requestData.product_sku);
+    formData.append('product_name', requestData.product_name);
+    formData.append('serial_number', requestData.serial_number);
+    formData.append('purchase_date', requestData.purchase_date || '');
+    formData.append('warranty_number', requestData.warranty_number || 'N/A');
+    formData.append('fault_description', requestData.fault_description);
+    formData.append('request_type', requestData.request_type);
+    formData.append('selected_parts', JSON.stringify(requestData.selected_parts || []));
+
+    if (files?.factura) formData.append('factura', files.factura);
+    if (files?.garantia) formData.append('garantia', files.garantia);
+    if (files?.imagenes) formData.append('imagenes', files.imagenes);
+
+    const urlWithToken = `/save_request.php?token=${encodeURIComponent(token)}`;
 
     try {
       console.log(`🚀 API Request: ${API_BASE_URL}${urlWithToken}`);
-      
+
       const response = await fetch(`${API_BASE_URL}${urlWithToken}`, {
         method: 'POST',
-        headers: headers,
-        body: body
+        headers: { 'Authorization': `Bearer ${token}` },
+        // NO incluir Content-Type — lo setea el browser automáticamente con el boundary
+        body: formData
       });
-      
+
       console.log('📡 Response status:', response.status);
-      
       const data = await response.json();
-      
       console.log('📦 Response data:', data);
-      
+
       if (!response.ok) {
         throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       return data;
-      
+
     } catch (error) {
       console.error('❌ API Error:', error);
       throw error;

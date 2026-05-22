@@ -36,6 +36,7 @@ export const STNueva = () => {
   const [requestType, setRequestType] = useState(null); // null | 'repuestos' | 'envio'
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null);
 
@@ -97,64 +98,46 @@ export const STNueva = () => {
       return;
     }
 
-    // Búsqueda inmediata para autocompletado
     const newTimeout = setTimeout(async () => {
-      setLoading(true);
+      setSearching(true);
       try {
-        console.log('Buscando producto...');
-        const response = await ProductAPI.getProductBySKU(sku);
-        console.log('Respuesta API:', response);
-        
-        if (response.success && response.product) {
-          // Producto exacto encontrado
-          setProductData(response.product);
-          setShowSuggestions(false);
-          setSuggestions([]);
-          console.log('Producto encontrado:', response.product);
+        // Siempre buscar sugerencias con el endpoint de búsqueda
+        const response = await ProductAPI.searchProducts(sku);
+
+        if (response.success && response.products.length > 0) {
+          // Verificar si hay coincidencia exacta de SKU
+          const exactMatch = response.products.find(
+            p => p.sku.toUpperCase() === sku.toUpperCase()
+          );
+
+          if (exactMatch) {
+            // Coincidencia exacta: fijar producto y ocultar sugerencias
+            setProductData(exactMatch);
+            setShowSuggestions(false);
+            setSuggestions([]);
+          } else {
+            // Sin coincidencia exacta: mostrar lista de sugerencias
+            setProductData(null);
+            setSuggestions(response.products);
+            setShowSuggestions(true);
+          }
         } else {
-          // No encontrado exactamente, buscar sugerencias
           setProductData(null);
-          await buscarSugerencias(sku);
+          setSuggestions([]);
+          setShowSuggestions(false);
         }
       } catch (error) {
         console.error('Error buscando producto:', error);
         setProductData(null);
-        // Si no encuentra exacto, buscar sugerencias
-        await buscarSugerencias(sku);
-        if (!error.message.includes('404') && !error.message.includes('no encontrado')) {
-          setError(handleApiError(error));
-        }
+        setSuggestions([]);
+        setShowSuggestions(false);
       } finally {
-        setLoading(false);
+        setSearching(false);
       }
-    }, 300); // Reducido para más inmediatez
+    }, 300);
     
     setSearchTimeout(newTimeout);
   }, [searchTimeout]);
-
-  // Función para buscar sugerencias parciales
-  const buscarSugerencias = async (sku) => {
-    try {
-      // Lista de productos disponibles (esto podría venir de un endpoint específico)
-      const productosDisponibles = [
-        { sku: 'NM10', nombre: 'Nebulizador Médico NM10', warranty_days: 90 },
-        { sku: 'N30', nombre: 'Nebulizador N30 Profesional', warranty_days: 30 }
-      ];
-      
-      // Filtrar sugerencias que coincidan parcialmente
-      const sugerencias = productosDisponibles.filter(product => 
-        product.sku.includes(sku) || product.nombre.toLowerCase().includes(sku.toLowerCase())
-      );
-      
-      setSuggestions(sugerencias);
-      setShowSuggestions(sugerencias.length > 0);
-      
-    } catch (error) {
-      console.error('Error buscando sugerencias:', error);
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  };
 
   // Función para seleccionar una sugerencia
   const seleccionarSugerencia = async (suggestion) => {
@@ -359,15 +342,15 @@ export const STNueva = () => {
         <div className="space-y-5">
           <div className="relative">
             <label htmlFor="sku" className="block text-sm font-medium text-gray-700 mb-1">
-              Ingresar Modelo del Producto {loading && <span className="text-blue-500">(buscando...)</span>}
+              Ingresar Modelo del Producto {searching ? '(buscando...)' : ''}
             </label>
-            <Input 
-              type="text" 
-              id="sku" 
-              value={skuInput} 
-              onChange={handleSkuChange} 
-              placeholder="Ej: N30, NM10 (mínimo 3 caracteres)" 
-              disabled={loading}
+            <Input
+              type="text"
+              id="sku"
+              value={skuInput}
+              onChange={handleSkuChange}
+              placeholder="Ej: N30, NM10 (mínimo 3 caracteres)"
+              disabled={false}
               onBlur={() => {
                 setTimeout(() => setShowSuggestions(false), 200);
               }}
