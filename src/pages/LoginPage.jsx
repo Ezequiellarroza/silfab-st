@@ -15,11 +15,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [remember, setRemember] = useState(true);
-  const [emailValue, setEmailValue] = useState("");
+  const [cuitValue, setCuitValue] = useState("");
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem("silfab_login_email");
-    if (savedEmail) setEmailValue(savedEmail);
+    const savedCuit = localStorage.getItem("silfab_login_cuit");
+    if (savedCuit) setCuitValue(savedCuit);
   }, []);
 
   async function handleSubmit(e) {
@@ -28,15 +28,15 @@ export default function LoginPage() {
     setLoading(true);
 
     const form = new FormData(e.currentTarget);
-    const email = form.get("email");
+    const cuit = form.get("cuit");
     const password = form.get("password");
 
     try {
-      const { user, token } = await login({ email, password, remember });
+      const { user, token } = await login({ cuit, password, remember });
 
-      // recordar email si corresponde
-      if (remember) localStorage.setItem("silfab_login_email", email);
-      else localStorage.removeItem("silfab_login_email");
+      // recordar cuit si corresponde
+      if (remember) localStorage.setItem("silfab_login_cuit", cuit);
+      else localStorage.removeItem("silfab_login_cuit");
 
       // validación simple
       if (!token) throw new Error("Respuesta inválida del servidor");
@@ -72,16 +72,16 @@ export default function LoginPage() {
           <div className="rounded-xl border border-gray-200 bg-[var(--card)] p-6 shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="sr-only" htmlFor="email">Email</label>
+                <label className="sr-only" htmlFor="cuit">CUIT</label>
                 <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
+                  id="cuit"
+                  name="cuit"
+                  type="text"
+                  autoComplete="off"
                   required
-                  placeholder="Email"
-                  value={emailValue}
-                  onChange={(e) => setEmailValue(e.target.value)}
+                  placeholder="CUIT sin guiones"
+                  value={cuitValue}
+                  onChange={(e) => setCuitValue(e.target.value)}
                 />
               </div>
 

@@ -6,22 +6,21 @@ const API_URL = "https://trinity.com.ar/silfab-api";
 
 /**
  * Realiza el login del usuario contra la API
- * @param {string} email - Email del usuario
+ * @param {string} cuit - CUIT del usuario
  * @param {string} password - Contraseña del usuario
  * @param {boolean} remember - Si debe recordar la sesión
  * @returns {Promise<Object>} Datos del usuario y token
  */
-export async function login({ email, password, remember = true }) {
+export async function login({ cuit, password, remember = true }) {
   try {
+    const cleanCuit = cuit.replaceAll(/[\s-]/g, '').trim();
+
     const response = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        email: email.trim(),
-        password: password
-      })
+      body: JSON.stringify({ cuit: cleanCuit, password })
     });
 
     const data = await response.json();
@@ -88,7 +87,7 @@ export function logout() {
   [localStorage, sessionStorage].forEach(store => {
     store.removeItem(LS_TOKEN);
     store.removeItem(LS_USER);
-    store.removeItem("silfab_login_email"); // por si queda recordado
+    store.removeItem("silfab_login_cuit"); // por si queda recordado
   });
 }
 
